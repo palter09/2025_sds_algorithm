@@ -1,3 +1,4 @@
+<span style="font-size: 12px;>
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -40,6 +41,7 @@ int main(){
             cout << "Goldbach's conjecture is wrong." << "\n";
         }
     }
-    
     return 0;
 }
+
+</span>
