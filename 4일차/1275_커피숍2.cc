@@ -9,18 +9,6 @@ int N, Q;
 vector<ll> arr;
 vector<ll> segTree;
 
-// 세그먼트 트리를 빌드하는 함수
-void build(int node, int start, int end) {
-    if(start == end) {
-        segTree[node] = arr[start];
-    } else {
-        int mid = (start + end) / 2;
-        build(node * 2, start, mid);
-        build(node * 2 + 1, mid + 1, end);
-        segTree[node] = segTree[node * 2] + segTree[node * 2 + 1];
-    }
-}
-
 // 구간 [l, r]의 합을 구하는 함수
 ll query(int node, int start, int end, int l, int r) {
     // 구간이 겹치지 않으면 0 리턴
@@ -52,13 +40,12 @@ int main(){
 
     cin >> N >> Q;
     arr.resize(N + 1);
+    segTree.resize(4 * (N + 1));
+    
     for(int i = 1; i <= N; i++){
         cin >> arr[i];
+        update(1, 1, N, i, arr[i]);
     }
-    
-    // 세그먼트 트리 배열의 크기는 일반적으로 4 * N로 잡습니다.
-    segTree.resize(4 * (N + 1));
-    build(1, 1, N);
     
     // 각 쿼리 처리
     while(Q--){
