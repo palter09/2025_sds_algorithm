@@ -1,4 +1,5 @@
 <span style="font-size: 12px;>
+```c++
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -43,5 +44,5 @@ int main(){
     }
     return 0;
 }
-
+```
 </span>
