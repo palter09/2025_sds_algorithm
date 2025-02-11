@@ -1,99 +1,131 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <algorithm>
 using namespace std;
-
-const int MAX_K = 20; // 2^9 까지 사용
-
+ 
+// 상수들
+const int MAX_K = 20;           // N이 10^5 정도까지면 2^20이 충분합니다.
+const int INF = 1000000000;       // 충분히 큰 값
+ 
+// 이진 상승을 위한 정보를 저장할 구조체
+struct Info {
+    int parent;   // 해당 노드의 2^k번째 부모
+    int minEdge;  // 노드에서 2^k번째 부모로 가는 경로 상의 최소 간선 길이
+    int maxEdge;  // 노드에서 2^k번째 부모로 가는 경로 상의 최대 간선 길이
+};
+ 
 int N;
-vector<vector<pair<int,int>>> parent;  // parent[k][i] : i의 2^k번째 부모
-vector<int> depth;           // 각 노드의 깊이
-vector<vector<pair<int,int>>> edges;   // 트리의 인접 리스트
-
-// 두 노드의 LCA(최소 공통 조상)를 반환하는 함수
-pair<int> lca(int a, int b) {
-	// 항상 a의 depth가 b보다 작거나 같게 유지 (즉, b가 더 깊다고 가정)
-	if (depth[a] > depth[b])
-		swap(a, b);
-
-	int min = 1000000;
-	int max = 0;
-
-	// 깊이 차이를 맞추기 위해 b를 올린다.
-	for (int k = MAX_K - 1; k >= 0; k--) {
-		if (depth[b] - depth[a] >= (1 << k)) {
-			max = max(max, parent[k][b].second);
-			min = min(min, parent[k][b].second)
-			b = parent[k][b].first;
-		}
-	}
-	if (a == b)
-		return max;
-
-	// 두 노드의 공통 조상이 될 때까지 동시에 올린다.
-	for (int k = MAX_K - 1; k >= 0; k--) {
-		if (parent[k][a].first != parent[k][b].first) {
-			max = max(max, parent[k][a].second);
-			max = max(max, parent[k][b].second);
-			min = min(min, parent[k][a].second);
-			min = min(min, parent[k][b].second);
-			a = parent[k][a].first;
-			b = parent[k][b].first;
-		}
-	}
-	return { min, max };
+vector<vector<pair<int,int>>> edges;  // 각 노드의 인접 리스트: {인접 노드, 간선 길이}
+vector<int> depth;                      // 각 노드의 깊이 (루트는 0)
+vector<vector<Info>> par;               // par[k][v]: 노드 v의 2^k번째 부모 및 구간 정보
+ 
+// BFS를 이용하여 각 노드의 깊이와 바로 위 부모(레벨 0)를 계산합니다.
+void bfs(int root) {
+    queue<int> q;
+    depth[root] = 0;
+    q.push(root);
+    while(!q.empty()){
+        int cur = q.front();
+        q.pop();
+        for(auto &edge : edges[cur]){
+            int nxt = edge.first;
+            int w = edge.second;
+            if(depth[nxt] == -1){  // 아직 방문하지 않았다면
+                depth[nxt] = depth[cur] + 1;
+                par[0][nxt].parent = cur;
+                par[0][nxt].minEdge = w;
+                par[0][nxt].maxEdge = w;
+                q.push(nxt);
+            }
+        }
+    }
 }
-
-int main() {
-	ios::sync_with_stdio(false);
-	cin.tie(nullptr);
-
-	cin >> N;
-	// 인접 리스트, 깊이, parent 배열 초기화
-	edges.resize(N + 1);
-	depth.assign(N + 1, 0);
-	parent.assign(MAX, vector<int>(N + 1, 0));
-
-	// 트리의 간선 입력 (N-1개)
-	for (int i = 0; i < N - 1; i++) {
-		int a, b, len;
-		cin >> a >> b >> len;
-		edges[a].push_back({ b, len });
-		edges[b].push_back({ a, len });
-	}
-
-	// BFS를 이용하여 각 노드의 깊이와 바로 위의 부모를 설정
-	queue<int> q;
-	q.push(1);
-	depth[1] = 1;  // 루트의 깊이를 1로 설정
-	while (!q.empty()) {
-		int cur = q.front();
-		q.pop();
-		for (pair<int> nxt : edges[cur]) {
-			if (depth[nxt.first] == 0) {
-				depth[nxt.first] = depth[cur] + 1;
-				parent[0][nxt.first].second = nxt.second;
-				parent[0][nxt.first].first = cur;
-				q.push(nxt);
-			}
-		}
-	}
-
-	// 이진 상승 기법(Binary Lifting)을 위한 전처리: 
-	// 각 노드의 2^i번째 부모 정보를 저장
-	for (int i = 1; i < MAX; i++) {
-		for (int j = 1; j <= N; j++) {
-			parent[i][j].first = parent[i - 1][parent[i - 1][j].first].first;
-		}
-	}
-
-	// 쿼리 처리
-	cin >> M;
-	while (M--) {
-		int a, b;
-		cin >> a >> b;
-		cout << lca(a, b) << "\n";
-	}
-
-	return 0;
+ 
+// 두 노드 a와 b 사이의 경로 상의 최소/최대 간선 길이를 구하는 함수
+pair<int,int> query(int a, int b) {
+    // 만약 같은 노드라면 경로에 간선이 없으므로 (0, 0) 출력
+    if(a == b) return {0, 0};
+ 
+    int minAns = INF, maxAns = 0;
+    // 항상 a가 더 깊은 노드가 되도록 swap
+    if(depth[a] < depth[b]) swap(a, b);
+ 
+    // 먼저 a를 b와 같은 깊이로 올립니다.
+    int diff = depth[a] - depth[b];
+    for (int i = 0; i < MAX_K; i++) {
+        if(diff & (1 << i)) {
+            minAns = min(minAns, par[i][a].minEdge);
+            maxAns = max(maxAns, par[i][a].maxEdge);
+            a = par[i][a].parent;
+        }
+    }
+ 
+    // 두 노드가 같아졌다면 끝.
+    if(a == b) return {minAns, maxAns};
+ 
+    // a와 b의 부모가 달라질 때까지 동시에 위로 올립니다.
+    for (int i = MAX_K - 1; i >= 0; i--) {
+        if(par[i][a].parent != par[i][b].parent) {
+            minAns = min(minAns, min(par[i][a].minEdge, par[i][b].minEdge));
+            maxAns = max(maxAns, max(par[i][a].maxEdge, par[i][b].maxEdge));
+            a = par[i][a].parent;
+            b = par[i][b].parent;
+        }
+    }
+    // 마지막 한 번 더 올려서 LCA에 도달 (각각 a와 b에서 LCA로 가는 간선 포함)
+    minAns = min(minAns, min(par[0][a].minEdge, par[0][b].minEdge));
+    maxAns = max(maxAns, max(par[0][a].maxEdge, par[0][b].maxEdge));
+ 
+    return {minAns, maxAns};
+}
+ 
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+ 
+    cin >> N;
+    edges.resize(N+1);
+    depth.assign(N+1, -1);
+    // par 배열을 초기화합니다.
+    par.assign(MAX_K, vector<Info>(N+1, {0, INF, 0}));
+ 
+    // 트리 간선 입력 (노드 번호는 1부터 시작)
+    for (int i = 1; i < N; i++){
+        int a, b, w;
+        cin >> a >> b >> w;
+        edges[a].push_back({b, w});
+        edges[b].push_back({a, w});
+    }
+ 
+    // BFS로 깊이 및 1단계(부모) 정보 채우기 (1번 노드를 루트로 사용)
+    bfs(1);
+ 
+    // 이진 상승 테이블 전처리:
+    // par[i][v] = par[i-1][v] 와 par[i-1][ par[i-1][v].parent ] 를 합친 결과
+    for (int i = 1; i < MAX_K; i++){
+        for (int v = 1; v <= N; v++){
+            int mid = par[i-1][v].parent;
+            if(mid == 0){
+                par[i][v].parent = 0;
+                par[i][v].minEdge = par[i-1][v].minEdge;
+                par[i][v].maxEdge = par[i-1][v].maxEdge;
+            } else {
+                par[i][v].parent = par[i-1][mid].parent;
+                par[i][v].minEdge = min(par[i-1][v].minEdge, par[i-1][mid].minEdge);
+                par[i][v].maxEdge = max(par[i-1][v].maxEdge, par[i-1][mid].maxEdge);
+            }
+        }
+    }
+ 
+    int M;
+    cin >> M;
+    while(M--){
+        int a, b;
+        cin >> a >> b;
+        pair<int,int> ans = query(a, b);
+        cout << ans.first << " " << ans.second << "\n";
+    }
+ 
+    return 0;
 }
