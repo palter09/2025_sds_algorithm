@@ -1,53 +1,45 @@
 #include <iostream>
 #include <vector>
 using namespace std;
- 
+
 int main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
     
-    int N, K;
-    long long M;
-    cin >> N >> K >> M;
+    int N, M, K;
+    cin >> N >> M >> K;
     
-    // 시작 위치 입력
-    vector<int> start(N);
-    for (int i = 0; i < N; i++){
-        cin >> start[i];
+    // 1번 인덱스부터 사용하기 위해 크기를 N+1로 설정합니다.
+    vector<int> f(N + 1);
+    for (int i = 1; i <= N; i++) {
+        cin >> f[i];
     }
     
-    // 필요한 dp 테이블의 높이 (즉, M의 최대 비트 수)
-    int LOG = 0;
-    while ((1LL << LOG) <= M) LOG++;
-    
-    // dp[i][j] : j번 칸에서 2^(i)번 점프한 후의 칸 번호
-    // 여기서 dp[0]는 한 번 점프한 결과 f(j)를 의미
-    vector<vector<int>> dp(LOG, vector<int>(K + 1, 0));
-    
-    // dp[0]를 입력받은 순열 f로 초기화 (칸은 1번부터 K번까지)
-    for (int i = 1; i <= K; i++){
-        cin >> dp[0][i];
+    // parent[0] 배열 (1번 인덱스부터 M번까지)
+    const int MAX_POW = 31;
+    vector<vector<int>> parent(MAX_POW, vector<int>(M + 1));
+    for (int i = 1; i <= M; i++) {
+        cin >> parent[0][i];
     }
     
-    // 이진 점프 테이블 구성: dp[i][j] = dp[i-1][ dp[i-1][j] ]
-    for (int i = 1; i < LOG; i++){
-        for (int j = 1; j <= K; j++){
-            dp[i][j] = dp[i-1][ dp[i-1][j] ];
+    // 이중 for문을 이용해 parent 테이블을 채웁니다.
+    for (int i = 1; i < MAX_POW; i++) {
+        for (int j = 1; j <= M; j++) {
+            parent[i][j] = parent[i - 1][parent[i - 1][j]];
         }
     }
     
-    // 각 시작 위치에 대해 M번 점프한 결과 계산  
-    // 단, dp 테이블은 dp[0]부터 시작하므로,
-    // M의 이진 표현의 bit번째 (1-indexed) 비트를 확인하여
-    // bit번째 비트가 켜져 있으면, dp[bit-1] (즉, 2^(bit-1)번 점프)를 수행합니다.
-    for (int i = 0; i < N; i++){
-        int pos = start[i];
-        for (int bit = 1; bit <= LOG; bit++){
-            if (M & (1LL << (bit - 1))) {
-                pos = dp[bit - 1][pos];
+    // 각 f[i]에 대해 K-1번 점프 후의 최종 위치를 계산합니다.
+    for (int i = 1; i <= N; i++) {
+        int num = f[i];
+        int k = K - 1;
+        for (int j = MAX_POW - 1; j >= 0; j--) {
+            if (k >= (1 << j)) {
+                num = parent[j][num];
+                k -= (1 << j);
             }
         }
-        cout << pos << " ";
+        cout << num << " ";
     }
     
     return 0;
