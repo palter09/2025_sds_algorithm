@@ -1,52 +1,58 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <functional>
 using namespace std;
 
 int V, E, start;
-int INF = 99999999;
+const int INF = 99999999;
 vector<vector<pair<int,int>>> edges;
 vector<int> dist;
 
 int main() {
-	cin >> V >> E;
-	cin >> start;
-	edges.resize(V + 1);
-	dist.assign(V + 1, INF);
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
-	for (int i = 0; i < E; i++) {
-		int s, e, c;
-		cin >> s >> e >> c;
-		edges[s].push_back({ e, c });
-	}
+    cin >> V >> E >> start;
+    edges.resize(V + 1);
+    dist.assign(V + 1, INF);
 
-	priority_queue<pair<int,int>> pq;
-	pq.push({ start, 0 });
-	dist[start] = 0;
-	int cur, curW, next, nextW;
+    for (int i = 0; i < E; i++) {
+        int s, e, c;
+        cin >> s >> e >> c;
+        edges[s].push_back({ e, c });
+    }
 
-	while (!pq.empty()) {
-		cur = pq.top().first;
-		curW = pq.top().second;
-		pq.pop();
+    // (거리, 정점) 순으로 저장하는 최소힙
+    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
+    dist[start] = 0;
+    pq.push({ 0, start });
 
-		for (int i = 0; i < edges[cur].size(); i++) {
-			next = edges[cur][i].first;
-			nextW = edges[cur][i].second;
+    while (!pq.empty()) {
+        int curW = pq.top().first;
+        int cur = pq.top().second;
+        pq.pop();
 
-			if (dist[next] > curW + nextW) {
-				dist[next] = curW + nextW;
-				pq.push({ next, curW + nextW });
-			}
-		}
-	}
+        // 이미 더 짧은 경로가 발견된 경우 건너뛰기
+        if (curW != dist[cur])
+            continue;
 
-	for (int i = 1; i <= V; i++) {
-		if (dist[i] == INF)
-			cout << "INF" << "\n";
-		else
-			cout << dist[i] << "\n";
-	}
+        for (int i = 0; i < edges[cur].size(); i++) {
+            int next = edges[cur][i].first;
+            int nextW = edges[cur][i].second;
+            if (dist[next] > curW + nextW) {
+                dist[next] = curW + nextW;
+                pq.push({ dist[next], next });
+            }
+        }
+    }
 
-	return 0;
+    for (int i = 1; i <= V; i++) {
+        if (dist[i] == INF)
+            cout << "INF" << "\n";
+        else
+            cout << dist[i] << "\n";
+    }
+
+    return 0;
 }
