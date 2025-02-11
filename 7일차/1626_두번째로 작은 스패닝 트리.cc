@@ -1,130 +1,85 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <algorithm>
 using namespace std;
- 
-// 간선 정보를 저장하는 구조체
-struct Edge {
-    int u, v, w;
-    bool used;  // MST에 포함되었는지 여부
+
+// 이진 상승을 위한 정보를 저장할 구조체
+struct Info {
+	int parent;   // 해당 노드의 2^k번째 부모
+	int weight;
 };
- 
-// DSU (Union-Find) 자료구조
-struct DSU {
-    vector<int> par;
-    DSU(int n) : par(n+1) {
-        for (int i = 0; i <= n; i++) par[i] = i;
-    }
-    int find(int a) {
-        return par[a] == a ? a : par[a] = find(par[a]);
-    }
-    bool unite(int a, int b) {
-        a = find(a); b = find(b);
-        if(a == b) return false;
-        par[b] = a;
-        return true;
-    }
-};
- 
-// 메인 함수
-int main(){
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    
-    int n, m;
-    cin >> n >> m;
-    vector<Edge> edges(m);
-    for (int i = 0; i < m; i++){
-        cin >> edges[i].u >> edges[i].v >> edges[i].w;
-        edges[i].used = false;
-    }
-    
-    // 간선의 개수가 n-1 미만이면 spanning tree 구성 불가
-    if(m < n-1){
-        cout << -1;
-        return 0;
-    }
-    
-    // 가중치 오름차순 정렬 (Kruskal을 위해)
-    sort(edges.begin(), edges.end(), [](const Edge &a, const Edge &b){
-        return a.w < b.w;
-    });
-    
-    DSU dsu(n);
-    long long mstWeight = 0;
-    int countUsed = 0;
-    // MST에 포함된 간선으로 구성한 트리의 인접 리스트
-    vector<vector<pair<int,int>>> tree(n+1);
-    
-    // Kruskal 알고리즘으로 MST 구성
-    for (int i = 0; i < m; i++){
-        if(dsu.unite(edges[i].u, edges[i].v)){
-            edges[i].used = true;
-            mstWeight += edges[i].w;
-            countUsed++;
-            tree[edges[i].u].push_back({edges[i].v, edges[i].w});
-            tree[edges[i].v].push_back({edges[i].u, edges[i].w});
-        }
-    }
-    if(countUsed != n-1){
-        cout << -1;
-        return 0;
-    }
-    
-    // ----- Binary Lifting 을 위한 전처리 -----
-    int LOG = 0;
-    while((1 << LOG) <= n) LOG++;
-    vector<int> depth(n+1, 0);
-    // up[v][i] : v의 2^i 번째 조상, maxEdge[v][i] : v에서 2^i 조상까지 경로 상의 최대 간선 가중치
-    vector<vector<int>> up(n+1, vector<int>(LOG, -1));
-    vector<vector<int>> maxEdge(n+1, vector<int>(LOG, 0));
-    
-    // DFS를 통해 각 노드의 깊이와 바로 위의 부모, 그리고 부모로 가는 간선 가중치를 저장
-    function<void(int,int)> dfs = [&](int v, int p){
-        up[v][0] = p;
-        for(auto &pInfo : tree[v]){
-            int nv = pInfo.first, w = pInfo.second;
-            if(nv == p) continue;
-            depth[nv] = depth[v] + 1;
-            maxEdge[nv][0] = w;
-            dfs(nv, v);
-        }
-    };
-    dfs(1, -1);
-    
-    // Binary lifting 표 채우기
-    for (int j = 1; j < LOG; j++){
-        for (int i = 1; i <= n; i++){
-            if(up[i][j-1] != -1){
-                up[i][j] = up[ up[i][j-1] ][j-1];
-                maxEdge[i][j] = max(maxEdge[i][j-1], maxEdge[ up[i][j-1] ][j-1]);
-            }
-        }
-    }
-    
-    // 두 노드 a, b 사이의 경로 상에서 최대 간선 가중치를 구하는 함수
-    auto getMaxOnPath = [&](int a, int b) -> int {
-        int res = 0;
-        if(depth[a] < depth[b]) swap(a, b);
-        int diff = depth[a] - depth[b];
-        for (int i = 0; i < LOG; i++){
-            if(diff & (1 << i)){
-                res = max(res, maxEdge[a][i]);
-                a = up[a][i];
-            }
-        }
-        if(a == b) return res;
-        for (int i = LOG - 1; i >= 0; i--){
-            if(up[a][i] != up[b][i]){
-                res = max(res, maxEdge[a][i]);
-                res = max(res, maxEdge[b][i]);
-                a = up[a][i];
-                b = up[b][i];
-            }
-        }
-        res = max(res, maxEdge[a][0]);
-        res = max(res, maxEdge[b][0]);
-        return res;
-    };
-    // ---------------------------------------
- 
-    // MST에 포함되지 않은 간선을 하나씩 보며, 해당 간선을 추가하면 생기는 사이클 내
-    // 최대 간선 가중치를
+
+int N;
+vector<vector<pair<int, int>>> edges;  // 각 노드의 인접 리스트: {인접 노드, 간선 길이}
+vector<int> depth;                      // 각 노드의 깊이 (루트는 0)
+vector<vector<Info>> par;               // par[k][v]: 노드 v의 2^k번째 부모 및 구간 정보
+
+// BFS를 이용하여 각 노드의 깊이와 바로 위 부모(레벨 0)를 계산합니다.
+void bfs(int root) {
+	queue<int> q;
+	depth[root] = 0;
+	q.push(root);
+	while (!q.empty()) {
+		int cur = q.front();
+		q.pop();
+		for (auto &edge : edges[cur]) {
+			int nxt = edge.first;
+			int w = edge.second;
+			if (depth[nxt] == -1) {  // 아직 방문하지 않았다면
+				depth[nxt] = depth[cur] + 1;
+				par[0][nxt].parent = cur;
+				par[0][nxt].minEdge = w;
+				par[0][nxt].maxEdge = w;
+				q.push(nxt);
+			}
+		}
+	}
+}
+
+// 두 노드의 최소 공통 조상(LCA)를 찾는 함수
+int lca(int x, int y) {
+	// x가 더 얕은 노드가 되도록 swap
+	if (depth[x] > depth[y])
+		swap(x, y);
+
+	// y의 깊이를 x와 동일하게 맞춤
+	for (int i = MAX - 1; i >= 0; i--) {
+		if (depth[y] - depth[x] >= (1 << i))
+			y = parent[i][y];
+	}
+
+	if (x == y)
+		return x;
+
+	// 두 노드가 같아질 때까지 조상을 올려보냄
+	for (int i = MAX - 1; i >= 0; i--) {
+		if (parent[i][x] != parent[i][y]) {
+			x = parent[i][x];
+			y = parent[i][y];
+		}
+	}
+
+	return parent[0][x];
+}
+
+// find 함수: a의 루트를 찾으면서, 경로 상의 차이(누적 가중치)를 갱신합니다.
+int find(int a) {
+	if (a == p[a].first) return a;
+	int par = p[a].first;
+	p[a].first = find(par);
+	p[a].second += p[par].second;
+	return p[a].first;
+}
+
+// uni 함수: 두 노드 a, b가 주어지고, "weight[b] - weight[a] = w" 관계가 주어질 때 두 집합을 합칩니다.
+void uni(int a, int b, int w) {
+	int rootA = find(a);
+	int rootB = find(b);
+
+	if (rootA == rootB) return;
+	// a와 b가 다른 집합에 있다면, b의 루트를 a의 루트에 연결합니다.
+	// 이때, b의 루트와 a의 루트 사이의 누적 차이를 맞춰줍니다.
+	p[rootB].first = rootA;
+	p[rootB].second = p[a].second - p[b].second + w;
+}
