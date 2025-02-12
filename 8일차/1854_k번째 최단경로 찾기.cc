@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -35,7 +34,8 @@ int main(){
     pq.push({0, 1});
     
     while (!pq.empty()){
-        auto [d, cur] = pq.top();
+        ll d = pq.top().first;
+        int cur = pq.top().second;
         pq.pop();
         
         // cur 정점에서 뻗어나가는 모든 간선에 대해
