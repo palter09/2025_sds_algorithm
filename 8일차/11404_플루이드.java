@@ -5,14 +5,16 @@ import java.util.StringTokenizer;
 
 public class Main {
 
-        static int V, E, adj[][], INF = 100000000;  // INF 값 증가
+        static int V, E;
+        static final int INF = 1000000000;  // 안전한 INF 값 설정
+        static int[][] adj;
 
         public static void main(String[] args) throws IOException {
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
                 StringTokenizer st = new StringTokenizer(br.readLine());
 
                 V = Integer.parseInt(st.nextToken());
-                E = Integer.parseInt(st.nextToken());  // 여기 수정!
+                E = Integer.parseInt(st.nextToken());
 
                 adj = new int[V+1][V+1];
 
@@ -29,6 +31,10 @@ public class Main {
                         int e = Integer.parseInt(st.nextToken());
                         int c = Integer.parseInt(st.nextToken());
 
+                        // 입력값이 범위를 벗어나면 무시
+                        if (s < 1 || s > V || e < 1 || e > V) continue;
+
+                        // 더 작은 값으로 갱신
                         adj[s][e] = Math.min(adj[s][e], c);
                 }
 
@@ -36,12 +42,14 @@ public class Main {
                 for (int k=1; k<=V; k++) {
                         for (int i=1; i<=V; i++) {
                                 for (int j=1; j<=V; j++) {
-                                        adj[i][j] = Math.min(adj[i][j], adj[i][k] + adj[k][j]);
+                                        if (adj[i][k] != INF && adj[k][j] != INF) {
+                                            adj[i][j] = Math.min(adj[i][j], adj[i][k] + adj[k][j]);
+                                        }
                                 }
                         }
                 }
 
-                // 결과 출력 최적화
+                // 출력 최적화
                 StringBuilder sb = new StringBuilder();
                 for (int i=1; i<=V; i++) {
                         for (int j=1; j<=V; j++) {
