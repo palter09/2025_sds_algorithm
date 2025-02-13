@@ -86,6 +86,7 @@
 14003번 가장 긴 증가하는 부분 수열5 : DP </br>
 1915번 가장 큰 정사각형 : DP </br>
 1028번 다이아몬드 광산 : DP </br>
+2342번 Dance Dance Revolution : DP </br>
 </br>
 </br>
 
