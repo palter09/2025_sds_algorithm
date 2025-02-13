@@ -11,50 +11,36 @@ public class Main {
     public static void main(String[] args) throws IOException  {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
-        StringBuilder sb = new StringBuilder();
-        
-        // 입력 받기
+
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
-        
-        A = new int[n+1][m+1];
-        dp = new int[n+1][m+1];
 
-        for (int i = 0; i < n; i++) {
-        	String s;
-        	s = br.readLine();
-        	String[] num = s.split("");
-        	for (int j=0; j < m; j++) {
-        		A[i][j] = Integer.parseInt(num[j]);
-        		
-        		if (i == 0 || j == 0) {
-        			dp[i][j] = A[i][j];
-        		}
-        	}
-        }
-        
+        A = new int[n][m];
+        dp = new int[n][m];
+
         int max_len = 0;
-        for (int i=1; i<n; i++) {
-        	for (int j=1; j<m; j++) {
-        		int left = A[i][j-1];
-        		int up = A[i-1][j];
-        		int dia = A[i-1][j-1];
-        		
-        		if (left == up && left == dia) {
-        			dp[i][j] = left + A[i][j];
-        		}
-        		
-        		else {
-        			int max = Math.max(left, up);
-        			max = Math.max(max,  dia);
-        			dp[i][j] = max;
-        		}
-        		
-        		max_len = Math.max(max_len, dp[i][j]);
-        	}
+        for (int i = 0; i < n; i++) {
+            String s = br.readLine();
+            for (int j = 0; j < m; j++) {
+                // 문자 하나씩 읽어서 정수로 변환 (문자 '0' 또는 '1')
+                A[i][j] = s.charAt(j) - '0';
+                dp[i][j] = A[i][j];  // 첫 행, 첫 열은 그대로 복사
+                max_len = Math.max(max_len, dp[i][j]);
+            }
         }
-        
-        int ans = max_len * max_len;
-        System.out.println(ans);
+
+        // dp 갱신: 각 칸을 오른쪽 아래 꼭짓점으로 하는 정사각형의 최대 한 변 길이
+        for (int i = 1; i < n; i++) {
+            for (int j = 1; j < m; j++) {
+                if (A[i][j] == 1) {
+                    dp[i][j] = Math.min(Math.min(dp[i-1][j], dp[i][j-1]), dp[i-1][j-1]) + 1;
+                    max_len = Math.max(max_len, dp[i][j]);
+                } else {
+                    dp[i][j] = 0;
+                }
+            }
+        }
+
+        System.out.println(max_len * max_len);
     }
 }
