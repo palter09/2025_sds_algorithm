@@ -87,6 +87,7 @@
 1915번 가장 큰 정사각형 : DP </br>
 1028번 다이아몬드 광산 : DP </br>
 2342번 Dance Dance Revolution : DP </br>
+5626번 제단 : DP </br>
 </br>
 </br>
 
