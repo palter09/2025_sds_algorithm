@@ -36,8 +36,7 @@ public class Main {
                     while (ans < min) {
                         // 왼쪽 모서리까지 오른쪽으로 내려오는 대각선이 있는지 확인
                         // 오른쪽 모서리까지 왼쪽으로 내려오는 대각선이 있는지 확인
-                        if (r[i-min+1][j-min+1] >= min 
-                                && l[i-min+1][j+min-1] >= min) {
+                        if (r[i-min+1][j-min+1] >= min && l[i-min+1][j+min-1] >= min) {
                             ans = Math.max(ans, min);
                         }
                         min--;
