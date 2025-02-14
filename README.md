@@ -101,5 +101,6 @@
 10일차 (top-down DP) </br>
 2098번 외판원 순회 : DP </br>
 1102번 발전소 : DP(bit-mask): </br>
+2618번 경찰자 : DP </br>
 </br>
 </br>
