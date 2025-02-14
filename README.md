@@ -3,7 +3,7 @@
 </br>
 </br>
 
-1순위 : bottom-up DP, 다익스트라, 익덱스 트리 </br>
+1순위 : bottom-up DP, 다익스트라, 인덱스 트리 </br>
 </br>
 </br>
 
