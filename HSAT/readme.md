@@ -64,17 +64,23 @@ sort(arr.begin(), arr.end(), [](const pair<int, int>& a, const pair<int, int>& b
 참신한 그래프 문제 </br>
 
 기본적으로 dfs 이용 </br>
-void dfs(int now, vector<vector<int>>& adj, vector<int>& visit) </br>
+```c++
+void dfs(int now, vector<vector<int>>& adj, vector<int>& visit)
+```
 
 S와 T에서 나가는 간선을 확인하는 fromS, fromT </br>
+```c++
 출근길에 T를 만나면 멈춤 : fromS[T] = 1 </br>
 퇴근길에 S를 만나면 멈출 : fromT[S] = 1 </br>
 dfs(S, adj, fromS) </br>
 dfs(T, adj, fromT) </br>
+```
 
 S와 T로 들어오는 간선을 확인하는 toS, toT </br>
+```c++
 dfs(S, adjR, toS) </br>
 dfs(T, adjR, toT) </br>
+```
 
 fromS[i], fromT[i], toS[i], toT[i]가 모두 1이면 찾은것 </br>
 
@@ -88,8 +94,10 @@ lower_bound 문제 </br>
 lower_bound 함수만 사용할 줄 알면 풀수 있는 문제 </br>
 vector의 크기만 조심하자 </br>
 
-mileage.resize(n) </br>
-idx = lower_bound(mileage.begin(), mileage.end(), m) - mileage.begin() </br>
+```c++
+mileage.resize(n);
+idx = lower_bound(mileage.begin(), mileage.end(), m) - mileage.begin();
+```
 
 벡터 크기를 n+1로 하면 빈 공간이 생겨 잘못된 결과가 나온다 </br>
 마지막에 mileage.begin()을 빼주지 않으면 mileage의 iterator를 반환한다 </br>
