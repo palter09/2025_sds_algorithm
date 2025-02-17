@@ -10,7 +10,7 @@ junction = [row][col][나가는 방향] </br>
 junction2 = [row][col][들어오는 방향] </br>
 
 5중 for문을 돌며 visit에 가능한지 기록 </br>
-time / row / col / inDir / outDir </br?
+time / row / col / inDir / outDir </br>
 
 visit이 1인 개수를 출력</br>
 
@@ -26,16 +26,24 @@ visit이 1인 개수를 출력</br>
 
 low, high, mid 설정 </br>
 
-high = low+1인 경우 무한루프에 들어갈 수 있어서 mid = low + high + 1 </br>
+high = low + 1인 경우 무한루프에 들어갈 수 있어서 mid = low + high + 1 </br>
 
 성능 x에 도달하기 위한 비용을 계산해서 요구사항과 비교 </br>
 low = mid </br>
 high = mid - 1 </br>
 
+주어진 요구사항보다 비용이 크면 false, 아니면 true 반환 </br>
+
 low와 high가 같아지면 low 출력 </br>
 
 ### 2. 통근버스 출발순서 검증하기
-DP </br>
+DP 문제 </br>
+
+more[i][k] -> i와 k사이에 A_i보다 큰 값이 몇개 있는지 </br>
+
+arr[i] < arr[k] -> k가 아니라 j개수를 세고 +1해서 저장 </br>
+
+arr[i] >= arr[k] -> k 개수를 세서 total 계산 </br>
 
 # 5회
 
