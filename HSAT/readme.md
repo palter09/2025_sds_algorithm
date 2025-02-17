@@ -70,8 +70,8 @@ void dfs(int now, vector<vector<int>>& adj, vector<int>& visit)
 
 S와 T에서 나가는 간선을 확인하는 fromS, fromT </br>
 ```c++
- fromS[T] = 1; // 출근길에 T를 만나면 멈춤
- fromT[S] = 1; // 퇴근길에 S를 만나면 멈출
+fromS[T] = 1; // 출근길에 T를 만나면 멈춤
+fromT[S] = 1; // 퇴근길에 S를 만나면 멈출
 dfs(S, adj, fromS);
 dfs(T, adj, fromT); 
 ```
@@ -92,7 +92,9 @@ for (int i = 1; i < n + 1; i++) {
 ```
 
 S와 T를 포함해서 세기 때문에 -2 해서 출력 </br>
+```c++
 cout << count-2 </br>
+```
 
 # 7회
 ### 자동차 테스트
