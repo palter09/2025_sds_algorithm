@@ -83,6 +83,13 @@ dfs(T, adjR, toT)
 ```
 
 fromS[i], fromT[i], toS[i], toT[i]가 모두 1이면 찾은것 </br>
+```c++
+for (int i = 1; i < n + 1; i++) {
+	if (fromS[i] && fromT[i] && toS[i] && toT[i]) {
+		count += 1;
+	}
+}
+```
 
 S와 T를 포함해서 세기 때문에 -2 해서 출력 </br>
 cout << count-2 </br>
