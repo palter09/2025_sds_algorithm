@@ -51,11 +51,11 @@ arr[i] >= arr[k] -> k 개수를 세서 total 계산 </br>
 
 {점수, 순서} 형태로 저장 </br>
 
-'''c++
+```c++
 sort(arr.begin(), arr.end(), [](const pair<int, int>& a, const pair<int, int>& b) {
 		return a.first > b.first;
 	});
-'''
+```
 
 점수가 높은 순으로 정렬하여 순위를 메기고, 순서에 맞게 순위를 부여 </br>
 
