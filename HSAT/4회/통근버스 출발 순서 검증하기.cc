@@ -19,11 +19,11 @@ int main() {
 	int total = 0;
 	for (int i = 0; i < n; i++) {
 		for (int k = i + 1; k < n; k++) {
-			if (arr[i] < arr[k]) { // k가 아니라 j
+			if (arr[i] < arr[k]) { // k가 아니라 j 개수를 세고 +1 해서 저장
 				more[i][k] = more[i][k - 1] + 1;
 			}
 
-			else {
+			else { // k 개수를 세서 total 계산
 				more[i][k] = more[i][k - 1];
 				total += more[i][k];
 			}
