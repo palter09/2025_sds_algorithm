@@ -58,6 +58,7 @@ arr[i] >= arr[k] -> k 개수를 세서 total 계산 </br>
 참신한 그래프 문제 </br>
 
 기본적으로 dfs 이용 </br>
+void dfs(int now, vector<vector<int>>& adj, vector<int>& visit) </br>
 
 S와 T에서 나가는 간선을 확인하는 fromS, fromT </br>
 출근길에 T를 만나면 멈춤 : fromS[T] = 1 </br>
