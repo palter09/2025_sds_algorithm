@@ -70,16 +70,16 @@ void dfs(int now, vector<vector<int>>& adj, vector<int>& visit)
 
 S와 T에서 나가는 간선을 확인하는 fromS, fromT </br>
 ```c++
-출근길에 T를 만나면 멈춤 : fromS[T] = 1 </br>
-퇴근길에 S를 만나면 멈출 : fromT[S] = 1 </br>
-dfs(S, adj, fromS) </br>
-dfs(T, adj, fromT) </br>
+ fromS[T] = 1; // 출근길에 T를 만나면 멈춤
+ fromT[S] = 1; // 퇴근길에 S를 만나면 멈출
+dfs(S, adj, fromS);
+dfs(T, adj, fromT); 
 ```
 
 S와 T로 들어오는 간선을 확인하는 toS, toT </br>
 ```c++
-dfs(S, adjR, toS) </br>
-dfs(T, adjR, toT) </br>
+dfs(S, adjR, toS)
+dfs(T, adjR, toT)
 ```
 
 fromS[i], fromT[i], toS[i], toT[i]가 모두 1이면 찾은것 </br>
