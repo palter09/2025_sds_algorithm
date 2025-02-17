@@ -111,5 +111,16 @@ idx = lower_bound(mileage.begin(), mileage.end(), m) - mileage.begin();
 벡터 크기를 n+1로 하면 빈 공간이 생겨 잘못된 결과가 나온다 </br>
 마지막에 mileage.begin()을 빼주지 않으면 mileage의 iterator를 반환한다 </br>
 
+### 순서대로 방문하기
+dfs 문제 </br>
+
+평범한 dfs 문제 </br>
+방문한 곳을 기록하는 visit 배열과 다음 칸이 벽이 아닌지 확인하여 전진 </br>
+```c++
+if (visit[nx][ny] || grid[nx][ny] != 0) continue; // 이미 방문한 곳이거나 벽인지 확인
+```
+
+
+
 
 
