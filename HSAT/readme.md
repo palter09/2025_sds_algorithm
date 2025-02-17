@@ -76,3 +76,17 @@ S와 T를 포함해서 세기 때문에 -2 해서 출력 </br>
 cout << count-2 </br>
 
 # 7회
+### 자동차 테스트
+lower_bound 문제 </br>
+
+lower_bound 함수만 사용할 줄 알면 풀수 있는 문제 </br>
+vector의 크기만 조심하자 </br>
+
+mileage.resize(n) </br>
+idx = lower_bound(mileage.begin(), mileage.end(), m) - mileage.begin() </br>
+
+벡터 크기를 n+1로 하면 빈 공간이 생겨 잘못된 결과가 나온다 </br>
+마지막에 mileage.begin()을 빼주지 않으면 mileage의 iterator를 반환한다 </br>
+
+
+
