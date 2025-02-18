@@ -20,7 +20,7 @@ queue<pair<int,int>> wq; // 물의 위치
 vector<vector<int>> hedgehogTime(R, vector<int>(C, -1)); // (i, j)칸에 고슴도치가 도달하는 시간
 queue<pair<int,int>> hq; // 고슴도치 위치
 ```
-</br>
+
 물 bfs를 먼저 계산하여 각 칸에 물이 도달하는 시간을 계산하고, 고슴도치를 이동시키며 물이 있는지 확인
 ```c++
 int nextTime = hedgehogTime[x][y] + 1;
