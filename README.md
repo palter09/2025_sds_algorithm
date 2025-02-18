@@ -20,7 +20,7 @@ queue<pair<int,int>> wq; // 물의 위치
 vector<vector<int>> hedgehogTime(R, vector<int>(C, -1)); // (i, j)칸에 고슴도치가 도달하는 시간
 queue<pair<int,int>> hq; // 고슴도치 위치
 ```
-
+</br>
 물 bfs를 먼저 계산하여 각 칸에 물이 도달하는 시간을 계산하고, 고슴도치를 이동시키며 물이 있는지 확인
 ```c++
 int nextTime = hedgehogTime[x][y] + 1;
@@ -30,6 +30,14 @@ if(waterTime[nx][ny] != -1 && nextTime >= waterTime[nx][ny])
 ```
 
 ### 1103번 게임 : DFS </br>
+최대 이동 횟수를 저장할 dp와 현재 dfs 경로상에서 방문 여부를 확인하는 visit 배열 사용
+```c++
+vector<vector<int>> dp;         // (x,y)에서 출발할 때 최대 이동 횟수
+vector<vector<bool>> visited;   // 현재 DFS 경로상에서 방문한 여부
+```
+
+
+
 </br>
 </br>
 
