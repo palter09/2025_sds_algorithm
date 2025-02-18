@@ -176,7 +176,45 @@ words.push_back(middle);
 ### 11438번 LCA2 </br>
 ### 3176번 도로 네트워크 </br>
 ### 1626번 두번째로 작은 스패닝 트리 </br>
-### 1753번 최단경로 </br>
+### 1753번 최단경로 : 다익스트라 </br>
+edge와 dist 크기 지정
+```c++
+edges.resize(V + 1); // 정점의 개수만큼 배열 크기 초기화
+dist.assign(V + 1, INF); // 거리를 저장할 배열. 처음에는 최대 크기로 초기화
+```
+
+s에서 e로 가는 길의 거리가 c
+```c++
+edges[s].push_back({ e, c });
+```
+
+다익스트라 알고리즘
+```c++
+// (거리, 정점) 순으로 저장하는 최소힙
+priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;
+dist[start] = 0;
+pq.push({ 0, start });
+
+while (!pq.empty()) {
+    int curW = pq.top().first;
+    int cur = pq.top().second;
+    pq.pop();
+
+    // 이미 더 짧은 경로가 발견된 경우 건너뛰기
+    if (curW != dist[cur])
+        continue;
+
+    for (int i = 0; i < edges[cur].size(); i++) {
+        int next = edges[cur][i].first;
+        int nextW = edges[cur][i].second;
+        if (dist[next] > curW + nextW) {
+            dist[next] = curW + nextW;
+            pq.push({ dist[next], next });
+        }
+    }
+}
+```
+
 ### 5719번 거의 최단경로 : 다익스트라 </br>
 Edge 구조체 선언
 ```c++
