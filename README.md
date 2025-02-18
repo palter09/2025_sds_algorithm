@@ -200,12 +200,57 @@ for (int i = 0; i < E; i++) {
 
 정방향 그래프를 이용한 다익스트라
 ```c++
-void dijkstra(int start); // 시작점 S로부터 각 정점까지의 최단 거리 계산
+// 시작점 S로부터 각 정점까지의 최단 거리 계산
+void dijkstra(int start) {
+    dist.assign(V, INF);
+    // 우선순위 큐: {누적 가중치, 현재 정점}
+    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    
+    dist[start] = 0;
+    pq.push({0, start});
+    
+    while (!pq.empty()) {
+        auto [curCost, cur] = pq.top();
+        pq.pop();
+        if (curCost > dist[cur])
+            continue;
+        for (const auto &edge : graph[cur]) {
+            // 만약 이 간선이 최단 경로에서 제거된 간선이면 건너뜀
+            if (used[edge.idx] == 1)
+                continue;
+            int next = edge.to;
+            int newCost = curCost + edge.cost;
+            if (newCost < dist[next]) {
+                dist[next] = newCost;
+                pq.push({newCost, next});
+            }
+        }
+    }
+}
 ```
 
 역방향 그래프를 이용한 bfs
 ```c++
-void dfs(int dest); // 도착점 D부터 시작하여 최단 경로에 포함된 간선을 찾아 제거(mark)
+// 도착점 D부터 시작하여 최단 경로에 포함된 간선을 찾아 제거(mark)
+void bfs(int dest) {
+    queue<int> q;
+    q.push(dest);
+    
+    while (!q.empty()) {
+        int cur = q.front();
+        q.pop();
+        for (const auto &edge : reverseGraph[cur]) {
+            int prev = edge.to;
+            if (used[edge.idx] == 1)
+                continue;
+            // 만약 최단 경로라면 (dist[cur] == dist[prev] + edge.cost)
+            if (dist[cur] == dist[prev] + edge.cost) {
+                used[edge.idx] = 1; // 해당 간선을 제거(mark)
+                q.push(prev);
+            }
+        }
+    }
+}
 ```
 
 다익스트라 계산 이후 최단 경로를 지우고, 다시 다익스트라 계산
