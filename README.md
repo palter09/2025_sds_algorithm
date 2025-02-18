@@ -177,7 +177,37 @@ words.push_back(middle);
 ### 3176번 도로 네트워크 </br>
 ### 1626번 두번째로 작은 스패닝 트리 </br>
 ### 1753번 최단경로 </br>
-### 5719번 거의 최단경로 </br>
+### 5719번 거의 최단경로 : 다익스트라 </br>
+Edge 구조체 선언
+```c++
+struct Edge {
+    int to;   // 도착 정점
+    int cost; // 간선 가중치
+    int idx;  // 간선의 고유 번호
+};
+```
+
+정방향 그래프와 역방향 그래프 입력받기
+```c++
+for (int i = 0; i < E; i++) {
+  cin >> a >> b >> c;
+  // 정방향 그래프: a -> b
+  graph[a].push_back({b, c, i});
+  // 역방향 그래프: b -> a
+  reverseGraph[b].push_back({a, c, i});
+}
+```
+
+정방향 그래프를 이용한 다익스트라
+```c++
+void dijkstra(int start); // 시작점 S로부터 각 정점까지의 최단 거리 계산
+```
+
+역방향 그래프를 이용한 bfs
+```c++
+void dfs(int dest); // 도착점 D부터 시작하여 최단 경로에 포함된 간선을 찾아 제거(mark)
+```
+
 </br>
 </br>
 
