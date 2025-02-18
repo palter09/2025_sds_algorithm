@@ -215,6 +215,8 @@ while (!pq.empty()) {
 }
 ```
 
+</br>
+
 ### 5719번 거의 최단경로 : 다익스트라 </br>
 Edge 구조체 선언
 ```c++
@@ -306,6 +308,53 @@ dijkstra(S);
 
 # 8일차 </br>
 ### 1854번 K번째 최단경로 찾기 : 다익스트라 </br>
+각 정점에 대해 지금까지 발견한 최단 경로 후보들을 저장할 최대 힙 생성
+```c++
+// top()은 지금까지 저장된 경로 중 가장 큰(= k번째 최단 경로 후보) 값을 반환
+vector<priority_queue<ll>> dist(n + 1);
+```
+
+다익스트라 알고리즘에 사용할 최소 힙 생성
+```c++
+// 전역 우선순위 큐: (현재까지 경로의 총 거리, 현재 정점)
+priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<pair<ll, int>>> pq;
+```
+
+시작 정점 초기화
+``` c++
+dist[1].push(0);
+pq.push({0, 1});
+```
+
+다익스트라 알고리즘
+```c++
+while (!pq.empty()){
+    ll d = pq.top().first;
+    int cur = pq.top().second;
+    pq.pop();
+    
+    // cur 정점에서 뻗어나가는 모든 간선에 대해
+    for (auto &edge : graph[cur]){
+        int nxt = edge.first;
+        ll nd = d + edge.second;
+        
+        // 만약 nxt 정점까지 발견된 경로의 개수가 k개보다 작으면 새 경로를 추가합니다.
+        if (dist[nxt].size() < (size_t)k){
+            dist[nxt].push(nd);
+            pq.push({nd, nxt});
+        }
+        // 이미 k개의 경로가 있다면, 그 중 가장 큰 값(현재 k번째 경로 후보)보다 작을 때 갱신합니다.
+        else if (dist[nxt].top() > nd){
+            dist[nxt].pop();
+            dist[nxt].push(nd);
+            pq.push({nd, nxt});
+        }
+    }
+}
+```
+
+</br>
+
 ### 13308번 주유소 : 다익스트라 </br>
 ### 13907번 세금 : 다익스트라 </br>
 ### 11657번 타임머신 : 벨만포드 </br>
