@@ -339,7 +339,7 @@ while (!pq.empty()){
         ll nd = d + edge.second;
         
         // 만약 nxt 정점까지 발견된 경로의 개수가 k개보다 작으면 새 경로를 추가합니다.
-        if (dist[nxt].size() < (size_t)k){
+        if (dist[nxt].size() < k){
             dist[nxt].push(nd);
             pq.push({nd, nxt});
         }
