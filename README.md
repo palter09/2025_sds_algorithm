@@ -101,6 +101,23 @@ if (cnt == K) {
     }
 ```
 
+필수 문자들은 learned 배열에 미리 표시
+```c++
+learned['a' - 'a'] = true;
+learned['n' - 'a'] = true;
+learned['t' - 'a'] = true;
+learned['i' - 'a'] = true;
+learned['c' - 'a'] = true;
+```
+
+s의 길이에서 앞의 4글자("anta")와 뒤의 4글자("tica")를 제외
+```c++
+string middle = s.substr(4, s.size() - 8);
+words.push_back(middle);
+```
+
+</br>
+
 ### 7453번 합이 0인 네 정수 : two pointer algorithm </br>
 
 
