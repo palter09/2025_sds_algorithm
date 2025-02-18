@@ -371,6 +371,14 @@ struct CompareState {
 };
 ```
 
+각 노드의 비용 입력
+```c++
+vector<int> c(N + 1);
+for (int i = 1; i <= N; i++) {
+    cin >> c[i];
+}
+```
+
 방향성이 없는 그래프 생성
 ```c++
   vector<vector<pair<int,int>>> e(N + 1);
