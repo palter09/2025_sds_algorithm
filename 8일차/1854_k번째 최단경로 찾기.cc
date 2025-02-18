@@ -44,7 +44,7 @@ int main(){
             ll nd = d + edge.second;
             
             // 만약 nxt 정점까지 발견된 경로의 개수가 k개보다 작으면 새 경로를 추가합니다.
-            if (dist[nxt].size() < (size_t)k){
+            if (dist[nxt].size() < k){
                 dist[nxt].push(nd);
                 pq.push({nd, nxt});
             }
@@ -60,7 +60,7 @@ int main(){
     // 각 정점에 대해 k번째 최단경로의 길이를 출력합니다.
     // k번째 경로가 존재하지 않으면 -1을 출력합니다.
     for (int i = 1; i <= n; i++){
-        if (dist[i].size() == (size_t)k)
+        if (dist[i].size() == k)
             cout << dist[i].top() << "\n";
         else
             cout << -1 << "\n";
