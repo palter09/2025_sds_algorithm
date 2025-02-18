@@ -57,8 +57,56 @@ if(visited[nx][ny]){
 
 # 2일차 </br>
 ### 1062번 가르침 : DFS </br>
+각 알파벳을 배웠는지 여부를 저장하는 배열 learned
+```c++
+bool learned[26] = { false }; // (false: 배우지 않음, true: 배움)
+```
+
+dfs 함수 정의
+```c++
+// idx: 알파벳 중에서 선택을 고려할 시작 인덱스 (0 ~ 25)
+// cnt: 현재까지 배운 문자 개수
+void dfs(int idx, int cnt);
+```
+
+알파벳 a부터 z까지 순서대로 선택하며 dfs문 돌기
+```c++
+for (int i = idx; i < 26; i++) {
+  if (!learned[i]) {
+    learned[i] = true;
+    dfs(i + 1, cnt + 1);
+    learned[i] = false;
+  }
+}
+```
+
+k개의 문자를 모두 선택했다면, 각 단어를 읽을 수 있는지 확인
+```c++
+if (cnt == K) {
+        int countReadable = 0;
+        // 모든 단어에 대해 검사
+        for (const string &word : words) {
+            bool canRead = true;
+            // 단어에 포함된 각 문자가 배운 문자에 포함되어 있는지 확인
+            for (char c : word) {
+                if (!learned[c - 'a']) { 
+                    canRead = false;
+                    break;
+                }
+            }
+            if (canRead) countReadable++;
+        }
+        ans = max(ans, countReadable);
+        return;
+    }
+```
+
 ### 7453번 합이 0인 네 정수 : two pointer algorithm </br>
+
+
 ### 3020번 개똥벌레 : 이진 탐색 </br>
+
+
 </br>
 </br>
 
