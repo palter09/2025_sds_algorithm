@@ -182,7 +182,7 @@ int find(int a) {
 }
 ```
 
-두 노드 a, b가 주어지고, weight[b] - weight[a] = w 면 두 집합을 합치는 함수
+두 노드 a, b가 주어지고, a와 b의 루트가 다르면 두 집합을 합치는 함수
 ```c++
 void uni(int a, int b, int w) {
     int rootA = find(a);
