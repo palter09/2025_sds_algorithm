@@ -142,7 +142,189 @@ words.push_back(middle);
 ### 2243번 사탕상자 : 인덱스 트리 </br>
 ### 1321번 군인 : 인덱스 트리 </br>
 ### 10999번 구간 합 구하기2 : 인덱스 트리 </br>
+세그먼트 트리(tree)와 지연 업데이트(lazy)를 저장할 전역 배열 포인터
+```c++
+long* tree;
+long* lazy;
+```
+
+현재 노드에 저장되어 있는 지연(lazy) 업데이트 값을 자식 노드에 전파하는 함수
+```c++
+void propagate(long node, long start, long end) {
+    if (lazy[node] != 0) {
+        // 현재 노드의 구간 합에 지연 업데이트(diff * 구간의 길이)를 적용
+        tree[node] += lazy[node] * (end - start + 1);
+       
+        if (start != end) {  // 리프 노드가 아니라면 자식 노드로 지연 업데이트 값을 전파
+            lazy[node * 2] += lazy[node];
+            lazy[node * 2 + 1] += lazy[node];
+        }
+        
+        lazy[node] = 0; // 현재 노드의 지연 업데이트 값 초기화
+    }
+}
+```
+
+세그먼트 트리에서 구간 합 쿼리를 수행하는 함수 (지연 업데이트 적용)
+```c++
+long lazy_query(long node, long start, long end, long left, long right) {
+    propagate(node, start, end); // 현재 노드에 대한 지연 업데이트를 먼저 적용
+    
+    // 현재 구간과 쿼리 구간이 겹치지 않는 경우
+    if (right < start || left > end) {
+        return 0;
+    }
+    
+    // 현재 구간이 쿼리 구간에 완전히 포함되는 경우
+    if (left <= start && right >= end) {
+        return tree[node];
+    }
+    
+    // 그렇지 않다면, 구간을 반으로 나누어 자식 노드에서 결과를 구함
+    long mid = (start + end) / 2;
+    return lazy_query(node * 2, start, mid, left, right) +
+           lazy_query(node * 2 + 1, mid + 1, end, left, right);
+}
+```
+
+세그먼트 트리에서 구간 [left, right]에 diff 값을 더하는 범위 업데이트 함수 (지연 업데이트 사용)
+```c++
+void lazy_update(long node, long start, long end, long left, long right, long diff) {
+    // 현재 노드에 대한 지연 업데이트를 먼저 적용
+    propagate(node, start, end);
+    
+    // 현재 구간과 업데이트 구간이 겹치지 않는 경우
+    if (right < start || left > end) {
+        return;
+    }
+    
+    // 현재 구간이 업데이트 구간에 완전히 포함되는 경우
+    if (left <= start && right >= end) {
+        
+        tree[node] += diff * (end - start + 1); // 현재 노드의 구간 합에 diff * 구간 길이를 더해줌
+        
+        if (start != end) { // 리프 노드가 아니라면, 자식 노드에 지연 업데이트 값을 저장
+            lazy[node * 2] += diff;
+            lazy[node * 2 + 1] += diff;
+        }
+        return;
+    }
+    
+    // 구간이 일부만 겹치는 경우, 자식 노드에 대해 재귀 호출
+    long mid = (start + end) / 2;
+    lazy_update(node * 2, start, mid, left, right, diff);
+    lazy_update(node * 2 + 1, mid + 1, end, left, right, diff);
+    
+    tree[node] = tree[node * 2] + tree[node * 2 + 1]; // 자식 노드의 결과를 합산하여 현재 노드의 값을 갱신
+}
+```
+
+초기 배열 값 입력 및 세그먼트 트리에 단일 업데이트로 반영
+```c++
+for (int i = 0; i < N; i++) {
+    long num;
+    cin >> num;
+    update(1, 0, MAX - 1, i, num);
+}
+```
+
+요구조건에 맞춰 연산 수행
+```c++
+// a == 1: 구간 업데이트 연산
+if (a == 1) {
+    long b, c, d;
+    cin >> b >> c >> d;
+    // 입력 받은 b, c를 인덱스에 맞게 (0-indexed) 변환 후 lazy_update 호출
+    lazy_update(1, 0, MAX - 1, b - 1, c - 1, d);
+}
+
+// a == 2: 구간 합 쿼리 연산
+if (a == 2) {
+    long b, c;
+    cin >> b >> c;
+    // 입력 받은 b, c를 인덱스에 맞게 (0-indexed) 변환 후 lazy_query 호출하고 결과 출력
+    cout << lazy_query(1, 0, MAX - 1, b - 1, c - 1) << endl;
+}
+```
+
+</br>
+
 ### 1395번 스위치 : 인덱스 트리 </br>
+각 구간별 켜긴 스위치의 개수를 저장할 seg 배열과 lazy tree
+```c++
+vector<int> seg;
+vector<bool> lazy; // lazy[idx]가 true면 해당 노드를 나중에 반전 처리해야 함을 의미
+```
+
+lazy 플래그가 설정된 구간에 대해 실제 값을 갱신하는 함수
+```c++
+void propagate(int idx, int s, int e) {
+    if(lazy[idx]) {
+        // 현재 구간 [s,e]의 스위치 개수를 반전합니다.
+        // 즉, 켜진 개수가 (구간 길이 - 기존 켜진 개수)로 바뀝니다.
+        seg[idx] = (e - s + 1) - seg[idx];
+        if(s != e) { // 리프 노드가 아니라면 자식에게 lazy 플래그 전달
+            lazy[idx * 2] = !lazy[idx * 2];
+            lazy[idx * 2 + 1] = !lazy[idx * 2 + 1];
+        }
+        lazy[idx] = false; // 현재 노드는 처리가 끝났으므로 초기화
+    }
+}
+```
+
+구간 [l, r]에 대해 스위치 상태를 토글하는 함수(lazy update)
+```c++
+void update(int idx, int s, int e, int l, int r) {
+    // lazy 처리: 현재 노드에 보류된 작업이 있다면 먼저 처리
+    propagate(idx, s, e);
+    
+    // 현재 구간 [s,e]가 [l, r]과 아예 겹치지 않으면 리턴
+    if(e < l || s > r) return;
+    
+    // 현재 구간이 [l, r]에 완전히 포함된다면
+    if(l <= s && e <= r) {
+        // lazy 플래그를 설정한 뒤 바로 처리
+        lazy[idx] = true;
+        propagate(idx, s, e);
+        return;
+    }
+    
+    int mid = (s + e) / 2;
+    update(idx * 2, s, mid, l, r);
+    update(idx * 2 + 1, mid + 1, e, l, r);
+    // 자식 노드를 업데이트한 후, 현재 노드 값을 갱신
+    seg[idx] = seg[idx * 2] + seg[idx * 2 + 1];
+}
+```
+
+구간 [l, r]에서 켜진 스위치의 개수를 반환하는 쿼리 함수(lazy query)
+```c++
+int query(int idx, int s, int e, int l, int r) {
+    // lazy 처리
+    propagate(idx, s, e);
+    
+    // 구간 [s,e]가 [l, r]과 전혀 겹치지 않으면
+    if(e < l || s > r) return 0;
+    
+    // 현재 구간이 [l, r]에 완전히 포함되면
+    if(l <= s && e <= r) return seg[idx];
+    
+    int mid = (s + e) / 2;
+    return query(idx * 2, s, mid, l, r) + query(idx * 2 + 1, mid + 1, e, l, r);
+}
+```
+
+문제 요구사항에 맞게 출력
+```c++
+if(op == 0) { // op == 0 : 구간 [a, b]의 스위치를 토글(업데이트)
+    update(1, 1, N, a, b);
+} else { // op == 1 : 구간 [a, b]에서 켜진 스위치의 개수를 쿼리
+    cout << query(1, 1, N, a, b) << "\n";
+}
+```
+
+</br>
+
 ### 1202번 보석 도둑 : 그리디 알고리즘 </br>
 ### 1735번 분수합 : 정수론 </br>
 ### 14476번 최대공약수 하나빼기 </br>
