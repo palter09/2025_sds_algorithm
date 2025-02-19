@@ -164,6 +164,71 @@ words.push_back(middle);
 # 6일차 </br>
 ### 1717번 집합의 표현 : 집합 </br>
 ### 3830번 교수님은 기다리지 않는다 : 집합 </br>
+부모 노드와 부모 노드 사이의 무게 차이를 저장할 배열
+```c++
+// p[i].first : i의 부모 노드
+// p[i].second: i와 부모 노드 사이의 (weight[i] - weight[parent[i]])
+vector<pair<int,int>> p;
+```
+
+a의 루트를 찾으면서 경로 상의 차이를 갱신하는 함수
+```c++
+int find(int a) {
+    if(a == p[a].first) return a;
+    int par = p[a].first;
+    p[a].first = find(par);
+    p[a].second += p[par].second;
+    return p[a].first;
+}
+```
+
+두 노드 a, b가 주어지고, weight[b] - weight[a] = w 면 두 집합을 합치는 함수
+```c++
+void uni(int a, int b, int w) {
+    int rootA = find(a);
+    int rootB = find(b);
+    
+    if(rootA == rootB) return;
+    // a와 b가 다른 집합에 있다면, b의 루트를 a의 루트에 연결합니다.
+    // 이때, b의 루트와 a의 루트 사이의 누적 차이를 맞춰줍니다.
+    p[rootB].first = rootA;
+    p[rootB].second = p[a].second - p[b].second + w;
+}
+```
+
+1부터 N까지 p 배열 초기화
+```c++
+for(int i = 1; i <= N; i++){
+    p[i].first = i;
+    p[i].second = 0; // 초기에는 자기 자신과의 차이는 0입니다.
+}
+```
+
+(op == !)면 b가 a보다 w만큼 무겁다는 사실을 저장하고, (op == ?)면 누적 차이를 이용해서 무게 계산
+```c++
+for(int i = 0; i < M; i++){
+    char op;
+    cin >> op;
+    if(op == '!'){
+        int a, b, w;
+        cin >> a >> b >> w;
+        // a와 b 사이에 "weight[b] - weight[a] = w" 관계를 설정합니다.
+        uni(a, b, w);
+    }
+    else if(op == '?'){
+        int a, b;
+        cin >> a >> b;
+        // 두 노드가 같은 집합에 속해 있으면, 누적 차이를 이용하여 두 노드의 무게 차이를 계산합니다.
+        if(find(a) == find(b))
+            cout << p[b].second - p[a].second << "\n";
+        else
+            cout << "UNKNOWN" << "\n";
+    }
+}
+```
+
+</br>
+
 ### 17398번 통신망 분할 : 집합 </br>
 ### 2252번 줄 세우기 : 위상정렬 </br>
 ### 1516번 게임 개발 : 위상정렬 </br>
