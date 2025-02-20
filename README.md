@@ -21,6 +21,60 @@ vector<vector<int>> hedgehogTime(R, vector<int>(C, -1)); // (i, j)칸에 고슴�
 queue<pair<int,int>> hq; // 고슴도치 위치
 ```
 
+물 bfs
+```c++
+// 돌('X')와 비버의 굴('D')는 침수 X
+while(!wq.empty()){
+    auto cur = wq.front();
+    wq.pop();
+    int x = cur.first, y = cur.second;
+    for (int d = 0; d < 4; d++){
+        int nx = x + dx[d], ny = y + dy[d];
+        if(nx < 0 || nx >= R || ny < 0 || ny >= C)
+            continue;
+        if(forest[nx][ny] == 'X' || forest[nx][ny] == 'D')
+            continue;
+        if(waterTime[nx][ny] == -1){
+            waterTime[nx][ny] = waterTime[x][y] + 1;
+            wq.push({nx, ny});
+        }
+    }
+}
+```
+
+고슴도치 bfs
+```c++
+// "다음 분에 물이 차기 전"에 이동 가능한지 hedgehogTime + 1 < waterTime) 확인
+while(!hq.empty()){
+    auto cur = hq.front();
+    hq.pop();
+    int x = cur.first, y = cur.second;
+    for (int d = 0; d < 4; d++){
+        int nx = x + dx[d], ny = y + dy[d];
+        if(nx < 0 || nx >= R || ny < 0 || ny >= C)
+            continue;
+        // 비버의 굴에 도착한 경우
+        if(forest[nx][ny] == 'D'){
+            ans = hedgehogTime[x][y] + 1;
+            reached = true;
+            // 더 이상 탐색할 필요 없으므로 큐 비우기
+            while(!hq.empty()) hq.pop();
+            break;
+        }
+        // 고슴도치는 빈 칸('.')나 시작 위치('S')로 이동 가능
+        if(forest[nx][ny] == '.' || forest[nx][ny] == 'S'){
+            if(hedgehogTime[nx][ny] != -1) continue;
+            int nextTime = hedgehogTime[x][y] + 1;
+            // 만약 해당 칸에 물이 도착하는 시간이 있다면, 고슴도치가 먼저 도착해야 안전
+            if(waterTime[nx][ny] != -1 && nextTime >= waterTime[nx][ny])
+                continue;
+            hedgehogTime[nx][ny] = nextTime;
+            hq.push({nx, ny});
+        }
+    }
+}
+```
+
 물 bfs를 먼저 계산하여 각 칸에 물이 도달하는 시간을 계산하고, 고슴도치를 이동시키며 물이 있는지 확인
 ```c++
 int nextTime = hedgehogTime[x][y] + 1;
@@ -38,18 +92,45 @@ vector<vector<int>> dp;         // (x,y)에서 출발할 때 최대 이동 횟�
 vector<vector<bool>> visited;   // 현재 DFS 경로상에서 방문한 여부
 ```
 
-다음 위치가 범위 밖이거나 구멍이면, 이동할 수 없으므로 1칸 이동한 것으로 처리
+dfs 함수
 ```c++
-if(nx < 0 || nx >= n || ny < 0 || ny >= m || board[nx][ny] == 'H')
-  dp[x][y] = max(dp[x][y], 1);
+int dfs(int x, int y) {
+    // 범위를 벗어나거나 구멍('H')이면 게임 종료 => 0 반환
+    if(x < 0 || x >= n || y < 0 || y >= m || board[x][y] == 'H')
+        return 0;
+    
+    // 이미 계산된 경우(메모이제이션)
+    if(dp[x][y] != 0)
+        return dp[x][y];
+    
+    // 현재 경로에서 재방문 시 무한 루프 발생
+    visited[x][y] = true;
+    int move = board[x][y] - '0';  // 현재 칸의 숫자(이동할 칸 수)
+    
+    for(int i = 0; i < 4; i++){
+        int nx = x + dx[i] * move;
+        int ny = y + dy[i] * move;
+        
+        // 다음 위치가 범위 밖이거나 구멍이면, 이동할 수 없으므로 1칸 이동한 것으로 처리
+        if(nx < 0 || nx >= n || ny < 0 || ny >= m || board[nx][ny] == 'H'){
+            dp[x][y] = max(dp[x][y], 1);
+        } else {
+            // 만약 현재 경로 상에서 이미 방문한 칸이라면 사이클이 발생한 것!
+            if(visited[nx][ny]){
+                cout << -1 << "\n";
+                exit(0);
+            }
+            dp[x][y] = max(dp[x][y], dfs(nx, ny) + 1);
+        }
+    }
+    visited[x][y] = false;
+    return dp[x][y];
+}
 ```
 
-만약 현재 경로상에서 이미 방문한 칸이라면 사이클이 발생한 것
+(0, 0)에서 시작
 ```c++
-if(visited[nx][ny]){
-  cout << -1 << "\n";
-  exit(0);
-}
+cout << dfs(0, 0) << "\n";
 ```
 
 </br>
