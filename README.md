@@ -147,23 +147,13 @@ dfs 함수 정의
 ```c++
 // idx: 알파벳 중에서 선택을 고려할 시작 인덱스 (0 ~ 25)
 // cnt: 현재까지 배운 문자 개수
-void dfs(int idx, int cnt);
-```
-
-알파벳 a부터 z까지 순서대로 선택하며 dfs문 돌기
-```c++
-for (int i = idx; i < 26; i++) {
-  if (!learned[i]) {
-    learned[i] = true;
-    dfs(i + 1, cnt + 1);
-    learned[i] = false;
-  }
-}
-```
-
-k개의 문자를 모두 선택했다면, 각 단어를 읽을 수 있는지 확인
-```c++
-if (cnt == K) {
+void dfs(int idx, int cnt) {
+    // 남은 알파벳 개수가 (26 - idx)개인데, 
+    // 아직 배워야 하는 문자 (K - cnt)개보다 적으면 더 이상 선택할 수 없으므로 리턴
+    if (26 - idx < K - cnt) return;
+    
+    // 만약 K개의 문자를 모두 선택했다면, 각 단어가 읽힐 수 있는지 확인
+    if (cnt == K) {
         int countReadable = 0;
         // 모든 단어에 대해 검사
         for (const string &word : words) {
@@ -180,6 +170,17 @@ if (cnt == K) {
         ans = max(ans, countReadable);
         return;
     }
+    
+    // 알파벳 A부터 Z까지 순서대로 선택 (이미 배운 문자는 넘어감)
+    for (int i = idx; i < 26; i++) {
+        if (!learned[i]) {
+            learned[i] = true;
+            dfs(i + 1, cnt + 1);
+            learned[i] = false;
+        }
+    }
+}
+
 ```
 
 필수 문자들은 learned 배열에 미리 표시
